@@ -1,5 +1,6 @@
 #include <uWS/uWS.h>
 #include <iostream>
+#include <fstream>
 #include "json.hpp"
 #include <math.h>
 #include "ukf.h"
@@ -25,6 +26,8 @@ std::string hasData(std::string s) {
   }
   return "";
 }
+ofstream NIS_radar ("NIS_radar.txt");
+ofstream NIS_lidar ("NIS_lidar.txt");
 
 int main()
 {
@@ -48,16 +51,16 @@ int main()
 
       auto s = hasData(std::string(data));
       if (s != "") {
-      	
+
         auto j = json::parse(s);
 
         std::string event = j[0].get<std::string>();
-        
+
         if (event == "telemetry") {
           // j[1] is the data JSON object
-          
+
           string sensor_measurment = j[1]["sensor_measurement"];
-          
+
           MeasurementPackage meas_package;
           istringstream iss(sensor_measurment);
     	  long long timestamp;
@@ -100,13 +103,26 @@ int main()
     	  iss >> vy_gt;
     	  VectorXd gt_values(4);
     	  gt_values(0) = x_gt;
-    	  gt_values(1) = y_gt; 
+    	  gt_values(1) = y_gt;
     	  gt_values(2) = vx_gt;
     	  gt_values(3) = vy_gt;
     	  ground_truth.push_back(gt_values);
-          
+
           //Call ProcessMeasurment(meas_package) for Kalman filter
-    	  ukf.ProcessMeasurement(meas_package);    	  
+    	  float NIS=ukf.ProcessMeasurement(meas_package);
+        if (sensor_type.compare("L") == 0) {
+          if (NIS_lidar.is_open()){
+              NIS_lidar<<NIS<<"\n";
+            }
+            else cout << "Unable to open file";
+          } else if (sensor_type.compare("R") == 0) {
+            if (NIS_radar.is_open()){
+                NIS_radar<<NIS<<"\n";
+              }
+            else cout << "Unable to open file";
+          }
+          NIS_lidar.flush();
+          NIS_radar.flush();
 
     	  //Push the current estimated x,y positon from the Kalman filter's state vector
 
@@ -124,7 +140,7 @@ int main()
     	  estimate(1) = p_y;
     	  estimate(2) = v1;
     	  estimate(3) = v2;
-    	  
+
     	  estimations.push_back(estimate);
 
     	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
@@ -139,10 +155,10 @@ int main()
           auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
           // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-	  
+
         }
       } else {
-        
+
         std::string msg = "42[\"manual\",{}]";
         ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
       }
@@ -185,91 +201,9 @@ int main()
     return -1;
   }
   h.run();
+  cout<<"done";
+
+  NIS_lidar.close();
+  NIS_radar.close();
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
