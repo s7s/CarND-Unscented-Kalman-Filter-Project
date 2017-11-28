@@ -46,4 +46,4 @@ I checked the NIS values to tune the parameters until I reached to these values:
 <img src="./Lidar_NIS.jpg" alt="Lidar_NIS"  width=700>
 
 
-<img src="./radar_NIS.jpg" alt="radar_NIS"  width=700>
+<img src="./Radar_NIS.jpg" alt="radar_NIS"  width=700>
