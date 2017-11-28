@@ -26,10 +26,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 2;
+  std_a_ = 0.9;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 1.0;
+  std_yawdd_ = 0.6;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -112,7 +112,7 @@ float UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       */
       x_(0)=meas_package.raw_measurements_(0) *cos(meas_package.raw_measurements_(1));
       x_(1)=-meas_package.raw_measurements_(0) *sin(meas_package.raw_measurements_(1));
-      x_(3)=atan2(x_(1),x_(0));
+//      x_(3)=atan2(x_(1),x_(0));
     }
     else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
       /**
@@ -120,7 +120,7 @@ float UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       */
       x_(0)=meas_package.raw_measurements_(0);
       x_(1)=meas_package.raw_measurements_(1);
-      x_(3)=atan2(x_(1),x_(0));
+//      x_(3)=atan2(x_(1),x_(0));
     }
     ////long x_size = ekf_.x_.size();
     ////ekf_.I_ = MatrixXd::Identity(x_size, x_size);
